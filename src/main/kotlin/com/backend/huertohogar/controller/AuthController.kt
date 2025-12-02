@@ -1,8 +1,7 @@
 package com.backend.huertohogar.controller
 
 import com.backend.huertohogar.dto.AuthResponse
-import com.backend.huertohogar.dto.LoginR
-equest
+import com.backend.huertohogar.dto.LoginRequest
 import com.backend.huertohogar.dto.RegisterRequest
 import com.backend.huertohogar.model.User
 import com.backend.huertohogar.repository.UserRepository
