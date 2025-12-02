@@ -11,8 +11,7 @@ import javax.crypto.SecretKey
 @Service
 class JwtService {
 
-    // En producción, esto debería ir en application.properties
-    // Esta clave debe ser larga (mínimo 256 bits) para HS256
+    // (Mantén tu SECRET_KEY igual)
     private val SECRET_KEY = "HuertoHogarSecretoParaLaPruebaDiciembre2025"
 
     fun extractUsername(token: String): String {
@@ -24,20 +23,33 @@ class JwtService {
         return claimsResolver(claims)
     }
 
+    // --- AQUÍ ESTÁ LA CORRECCIÓN ---
     fun generateToken(userDetails: UserDetails): String {
-        return generateToken(HashMap(), userDetails)
+        val extraClaims: MutableMap<String, Any> = HashMap()
+
+        // Extraemos el primer rol que tenga el usuario (Ej: "ROLE_ADMIN")
+        // userDetails.authorities es una lista, tomamos el primero para simplificar
+        val role = userDetails.authorities.firstOrNull()?.authority
+
+        if (role != null) {
+            extraClaims["roles"] = role // Guardamos "ROLE_ADMIN" o "ROLE_CLIENT"
+        }
+
+        return generateToken(extraClaims, userDetails)
     }
+    // ------------------------------
 
     fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         return Jwts.builder()
-            .claims(extraClaims)
+            .claims(extraClaims) // Aquí se inyectarán los roles que pasamos arriba
             .subject(userDetails.username)
             .issuedAt(Date(System.currentTimeMillis()))
-            .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas de validez
+            .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
             .signWith(getSignInKey(), Jwts.SIG.HS256)
             .compact()
     }
 
+    // (El resto de los métodos se quedan igual: isTokenValid, isTokenExpired, etc.)
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
         return (username == userDetails.username && !isTokenExpired(token))
