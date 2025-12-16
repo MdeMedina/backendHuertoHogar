@@ -48,20 +48,15 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        // 1. En lugar de "*", ponemos explícitamente tu frontend
-        configuration.allowedOrigins = listOf("http://localhost:3000")
+        // PERMITIR TODO (Solo para testing/entrega rápida)
+        // O mejor: leer de variable de entorno FRONTEND_URL
+        configuration.allowedOriginPatterns = listOf("*") // Ojo: allowedOrigins no deja usar * con credentials, usa allowedOriginPatterns
 
-        // 2. Métodos permitidos
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-
-        // 3. Headers permitidos (Authorization es clave para el JWT)
         configuration.allowedHeaders = listOf("Authorization", "Cache-Control", "Content-Type")
-
-        // 4. Permitir credenciales (True es necesario para que React se sienta seguro enviando datos)
         configuration.allowCredentials = true
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
         return source
     }
-}
